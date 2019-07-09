@@ -1,0 +1,21 @@
+---
+title: "Facebook Report"
+author: "Ben Gonzalez"
+date: "July 1, 2019"
+output: pdf_document
+time: !r Sys.time()
+params:
+  table: NA
+  sentiment: NA
+---
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(comment = NA)
+```
+
+\begin{center}
+Facebook Analysis Report
+\end{center}
+
+

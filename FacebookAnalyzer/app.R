@@ -22,7 +22,10 @@ ui <- fluidPage(
    sidebarLayout(
       sidebarPanel(
         fileInput(inputId = "file1",label = "Upload File"),
-        actionButton(inputId = "go",label = "Get Json Data")
+        actionButton(inputId = "go",label = "Get Json Data"),
+        textInput(inputId = "name",label = "Participant Name",placeholder = "Nobody"),
+        downloadButton('downloadfacebookreport',label = "Download Analysis Report")
+        
       ),
       
       # Show a plot of the generated distribution
@@ -40,7 +43,7 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
    
 
   text_content<- eventReactive(input$go,{
@@ -76,10 +79,30 @@ server <- function(input, output) {
     return(text_content)
     
   })
+  
+  ##Pulls the name of the participants in the message being analyzed
+  text_sender<- eventReactive(input$go,{
+    
+    
+    text<- jsonlite::fromJSON(txt = input$file1$datapath)
+    typeof(text)
+    
+    
+    text_participant<- text$participants$name[1:2]
+
+    
+    return(text_participant)
+    
+  })
+  
+  ###Update the participants name in the textInput field
+  observe({updateTextInput(session, inputId = "name",
+                  value = text_sender())
+  
   output$text <- renderText({
 
     text_content()
-  })
+  })})
   
   
   ###Sentiment reactive function
@@ -159,6 +182,7 @@ server <- function(input, output) {
    
  })
  
+ ##Heartbeat Plot 
  output$heartbeat <- renderPlot({
    
    docs<- text_content()
@@ -178,6 +202,40 @@ server <- function(input, output) {
    )
    
  })
+ 
+ ###Rmarkdown Report File
+ output$downloadfacebookreport <- downloadHandler(
+   filename = function() {
+     paste('ChemDiVo COA Report','docx', sep = '.'
+           #       switch(
+           #   input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+           # )
+     )
+   },
+   
+   
+   
+   
+   content = function(file) {
+     src <- normalizePath('./facebook.Rmd')
+
+     tempReporters <- file.path(tempdir(), "./facebook.Rmd")
+     file.copy("./facebook.Rmd", tempReporters, overwrite = TRUE)
+
+     # 
+     library(rmarkdown)
+     out <- render(input = 'facebook.Rmd',output_format = pdf_document())
+     file.rename(out, file)
+     
+     #     # Set up parameters to pass to Rmd document
+     params <- list(table = text_content ,sentiment = text_content)
+     rmarkdown::render(tempReporters, output_file = file,
+                       params = params,
+                       envir = new.env(parent = globalenv())
+     )
+     
+   }
+ )
   
 }
 
