@@ -10,6 +10,9 @@ params:
 ---
 
 ```{r setup, include=FALSE}
+library(syuzhet)
+library(tm)
+library(jsonlite)
 # knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(comment = NA)
 ```
@@ -18,4 +21,39 @@ knitr::opts_chunk$set(comment = NA)
 Facebook Analysis Report
 \end{center}
 
+```{r,echo=FALSE}
+table_one<- params$table
+value <- get_nrc_sentiment(table_one)
+pander::pandoc.table(value)
 
+```
+
+```{r,echo=FALSE}
+table_two <- params$table
+    value <- get_nrc_sentiment(table_two)
+     barplot_one<- barplot(
+        sort(colSums(prop.table(value[, 1:8]))),
+        cex.names = 0.7,
+        las = 1,
+        main = " Emotional Sentiment by Word",
+        col = "lightgreen"
+
+      )
+     text(barplot_one, 0, round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 2),cex=1,pos=3)
+    
+```
+
+```{r,echo=FALSE}
+table_three <- params$table
+value <- get_nrc_sentiment(table_three)
+     barplot_one<- barplot(
+        sort(colSums(prop.table(value[, 9:10]))),
+        cex.names = 0.7,
+        las = 1,
+        main = paste0(toupper(name)," Emotional Sentiment by Word"),
+        col = "lightgreen"
+
+      )
+     text(barplot_one, 0, round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2),cex=1,pos=3)
+    
+```

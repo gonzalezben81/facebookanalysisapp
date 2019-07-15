@@ -11,8 +11,9 @@ library(shiny)
 library(jsonlite)
 library(tm)
 library(syuzhet)
+library(DT)
 options(shiny.maxRequestSize=30*1024^2) 
-# Define UI for application that draws a histogram
+# Define UI for application that processes Facebook Data
 ui <- fluidPage(
    
    # Application title
@@ -21,10 +22,14 @@ ui <- fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-        fileInput(inputId = "file1",label = "Upload File"),
+        wellPanel(fileInput(inputId = "file1",label = "Upload Facebook Json File:"),
+        hr(),
         actionButton(inputId = "go",label = "Get Json Data"),
+        actionButton(inputId = "emotions_table",label = "Get Emotions Table")),
+        wellPanel(
         textInput(inputId = "name",label = "Participant Name",placeholder = "Nobody"),
-        downloadButton('downloadfacebookreport',label = "Download Analysis Report")
+        hr(),
+        downloadButton('downloadfacebookreport',label = "Download Analysis Report"))
         
       ),
       
@@ -45,9 +50,10 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
    
-
+   ###Takes the uploaded Json data and processes it into a character list
   text_content<- eventReactive(input$go,{
     
+    # inFile<- input$file1$datapath
     
     text<- jsonlite::fromJSON(txt = input$file1$datapath)
     typeof(text)
@@ -57,57 +63,58 @@ server <- function(input, output, session) {
     text_content<- as.list(text$messages$content)
     
     text_content <- unlist(text_content)
-    
+    print(text_content)
     return(text_content)
     
   })
   
   
+  ###Finds the sender and receivers of the message content and places it into a dataframe
   text_content_send<- eventReactive(input$go,{
-    
-    
+
+
     text<- jsonlite::fromJSON(txt = input$file1$datapath)
     typeof(text)
-    
+
     str(text$messages$content)
-    
+
     text_content<- as.list(text$messages$content)
     text_sender<- as.list(text$messages$sender_name)
-    
+
     text_content <- cbind(text_sender,text_content)
-    
+
     return(text_content)
-    
+
   })
   
   ##Pulls the name of the participants in the message being analyzed
   text_sender<- eventReactive(input$go,{
-    
-    
+
+
     text<- jsonlite::fromJSON(txt = input$file1$datapath)
     typeof(text)
-    
-    
-    text_participant<- text$participants$name[1:2]
 
-    
+
+    text_participant<- text$participants$name[1]
+
+
     return(text_participant)
-    
+
   })
   
   ###Update the participants name in the textInput field
   observe({updateTextInput(session, inputId = "name",
-                  value = text_sender())
+                  value = text_sender())})
   
   output$text <- renderText({
 
     text_content()
-  })})
+  })
   
   
   ###Sentiment reactive function
-  stuff<- eventReactive(input$go,{
-    
+  stuff<- eventReactive(input$emotions_table,{
+
     text<- text_content()
     value <- get_nrc_sentiment(text)
     print(value)
@@ -119,72 +126,72 @@ server <- function(input, output, session) {
     sentimentscores <- as.data.frame(sentimentscores)
     ##Rename the column names of the sentiment scores
     colnames(sentimentscores) <- c("Percentages")
-    # 
+    #
     # return(sentimentscores)
     sentimentscores <- as.data.frame(sentimentscores)
   })
   
   
   output$json_text<- DT::renderDT({
-    
+
     value<- stuff()
-    
+
     DT::datatable(value)
   })
   
   
- ###Emotions Output
+ ####Emotions Output: Trust, fear, anger, sadness, happiness, joy, 
  output$plot_one <- renderPlot({
-   
+
    text<- text_content()
    value <- get_nrc_sentiment(text)
-   
+
    barplot_one<- barplot(
      sort(colSums(prop.table(value[, 1:8]))),
      cex.names = 0.7,
      las = 1,
      main = " Emotional Sentiment by Word",
      col = "lightgreen"
-     
+
    )
    text(barplot_one, 0, round(sort(colSums(prop.table(value[, 1:8]))), 2),cex=1,pos=3)
-   
+
    barplot_one
  })
- 
+
  ##Positive and Negative Emotions Output
  output$plot_two <- renderPlot({
-   
+
    text<- text_content()
    value <- get_nrc_sentiment(text)
-   
+
    barplot_two<- barplot(
      sort(colSums(prop.table(value[, 9:10]))),
      cex.names = 0.7,
      las = 1,
      main = " Emotional Sentiment by Word",
      col = "lightgreen"
-     
+
    )
    text(barplot_two, 0, round(sort(colSums(prop.table(value[, 9:10]))), 2),cex=1,pos=3)
-   
+
    barplot_two
  })
- 
- ###Sentence Table Output
+
+ ###Sentence Table Output: Gets the sentences and displays them in a searchable DT table. 
  output$sentence_table <- DT::renderDataTable({
-   
+
    text<- text_content_send()
    # values <- get_sentences(text)
    values <- as.data.frame(text)
-   
+
    DT::datatable(values)
-   
+
  })
- 
- ##Heartbeat Plot 
+
+ ###Heartbeat Plot: Take the sentiment of the overall message timeline and creates a emotional valence plot
  output$heartbeat <- renderPlot({
-   
+
    docs<- text_content()
    s_v <- get_sentences(docs)
    s_v_sentiment <- get_sentiment(s_v)
@@ -200,9 +207,9 @@ server <- function(input, output, session) {
      xlab = "Messenger Timeline",
      ylab= "Emotional Valence"
    )
-   
+
  })
- 
+ # 
  ###Rmarkdown Report File
  output$downloadfacebookreport <- downloadHandler(
    filename = function() {
@@ -212,28 +219,28 @@ server <- function(input, output, session) {
            # )
      )
    },
-   
-   
-   
-   
+
+
+
+
    content = function(file) {
      src <- normalizePath('./facebook.Rmd')
 
      tempReporters <- file.path(tempdir(), "./facebook.Rmd")
      file.copy("./facebook.Rmd", tempReporters, overwrite = TRUE)
 
-     # 
+     #
      library(rmarkdown)
      out <- render(input = 'facebook.Rmd',output_format = pdf_document())
      file.rename(out, file)
-     
+
      #     # Set up parameters to pass to Rmd document
-     params <- list(table = text_content ,sentiment = text_content)
+     params <- list(table = text_content() ,sentiment = text_content())
      rmarkdown::render(tempReporters, output_file = file,
                        params = params,
                        envir = new.env(parent = globalenv())
      )
-     
+
    }
  )
   
