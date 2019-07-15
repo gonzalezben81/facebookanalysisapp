@@ -13,6 +13,7 @@ params:
 library(syuzhet)
 library(tm)
 library(jsonlite)
+library(ggplot2)
 # knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(comment = NA)
 ```
@@ -23,37 +24,113 @@ Facebook Analysis Report
 
 ```{r,echo=FALSE}
 table_one<- params$table
-value <- get_nrc_sentiment(table_one)
-pander::pandoc.table(value)
+
+
+    value <- get_nrc_sentiment(table_one)
+
+    # print(value)
+    ##Create
+    # prop.table(value[,1:8])
+    ##Create the sentiment scores table
+    sentimentscores <- sort(round(colSums(prop.table((value[,1:8])))*100,digits = 2),decreasing = TRUE)
+    # print(sentimentscores)
+    ##Create a dataframe that contains the sentiment scores
+    sentimentscores <- as.data.frame(sentimentscores)
+    ##Rename the column names of the sentiment scores
+    colnames(sentimentscores) <- c("Emotional %:")
+
+    ##Rename the row names of the sentiment scores
+    Emotions <- c("anger","anticipation","disgust","fear","joy","sadness",
+                  "surprise","trust")
+    
+# pander::pandoc.table(sentimentscores)
+knitr::kable(sentimentscores)
 
 ```
+
+
 
 ```{r,echo=FALSE}
 table_two <- params$table
     value <- get_nrc_sentiment(table_two)
-     barplot_one<- barplot(
-        sort(colSums(prop.table(value[, 1:8]))),
-        cex.names = 0.7,
-        las = 1,
-        main = " Emotional Sentiment by Word",
-        col = "lightgreen"
+    sentimentscores <- round(colSums(prop.table((value[,1:8])))*100,digits = 2)
+    # print(sentimentscores)
+    ##Create a dataframe that contains the sentiment scores
+    sentimentscores <- as.data.frame(sentimentscores)
+    # print(ceiling(max(sentimentscores)))
+    ylim_max <- ceiling(max(sentimentscores,na.rm = TRUE))
+    # # ylim_max <- as.data.frame(sentimentscores,)
+    ylimers <- c(0,ylim_max)
+    # print(ylimers)
+    barplot_one<- barplot(
+       sort(colSums(prop.table(value[, 1:8])),decreasing = TRUE),
+       cex.names = 0.7,
+       las = 1,
+       main = " Emotional Sentiment by Word",
+       col = "lightgreen"
+       ,xlim = c(0,9)
+       ,ylim = c(0,.40)
+       # ,names.arg = round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 2)
 
-      )
-     text(barplot_one, 0, round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 2),cex=1,pos=3)
-    
+     )
+    # text(barplot_one,round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 1))
+
 ```
+
+\newpage
+
+```{r,echo=FALSE}
+table_one<- params$table
+
+
+    value <- get_nrc_sentiment(table_one)
+
+    # print(value)
+    ##Create
+    # prop.table(value[,1:8])
+    ##Create the sentiment scores table
+    sentimentscores <- sort(round(colSums(prop.table((value[,9:10])))*100,digits = 2),decreasing = TRUE)
+    # print(sentimentscores)
+    ##Create a dataframe that contains the sentiment scores
+    sentimentscores <- as.data.frame(sentimentscores)
+    ##Rename the column names of the sentiment scores
+    colnames(sentimentscores) <- c("Emotional %:")
+
+    ##Rename the row names of the sentiment scores
+    Emotions <- c("Positive","Negative")
+    
+# pander::pandoc.table(sentimentscores)
+knitr::kable(sentimentscores)
+```
+
+
 
 ```{r,echo=FALSE}
 table_three <- params$table
 value <- get_nrc_sentiment(table_three)
+# xlim_max <- round(max(table_three))
+# print(xlim_max)
      barplot_one<- barplot(
-        sort(colSums(prop.table(value[, 9:10]))),
+        sort(colSums(prop.table(value[, 9:10])),decreasing = TRUE),
         cex.names = 0.7,
         las = 1,
-        main = paste0(toupper(name)," Emotional Sentiment by Word"),
+        main = " Emotional Sentiment by Word",
         col = "lightgreen"
+        ,xlim = c(0,3)
+        ,ylim = c(0,1)
+        # ,names.arg = round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2)
 
       )
-     text(barplot_one, 0, round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2),cex=1,pos=3)
+# text(barplot_one, 1, round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2),cex=1,pos=3)
     
 ```
+
+
+```{r,echo=FALSE}
+# table_three <- params$table
+# value <- get_nrc_sentiment(table_three)
+# sentimentscores <- round(colSums(prop.table((value[,1:8])))*100,digits = 1)
+# sentimentscores <- as.data.frame(sentimentscores)
+# qplot(sentimentscores, data = sentimentscores, geom = "bar", ylab = "# movies")
+```
+

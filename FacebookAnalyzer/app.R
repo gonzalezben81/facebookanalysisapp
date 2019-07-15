@@ -213,7 +213,7 @@ server <- function(input, output, session) {
  ###Rmarkdown Report File
  output$downloadfacebookreport <- downloadHandler(
    filename = function() {
-     paste('ChemDiVo COA Report','docx', sep = '.'
+     paste('Facebook Sentiment Analysis Report','pdf', sep = '.'
            #       switch(
            #   input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
            # )
