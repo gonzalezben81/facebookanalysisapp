@@ -73,7 +73,7 @@ table_two <- params$table
        # ,names.arg = round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 2)
 
      )
-    # text(barplot_one,round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 1))
+    text(barplot_one, 0,labels = round(colSums(prop.table(value[, 8:1])),digits = 3),cex=1,pos=3)
 
 ```
 
@@ -121,16 +121,23 @@ value <- get_nrc_sentiment(table_three)
         # ,names.arg = round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2)
 
       )
-# text(barplot_one, 1, round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2),cex=1,pos=3)
+text(barplot_one, 0,labels = round(colSums(prop.table(value[, 9:10])),digits = 2),cex=1,pos=3)
     
 ```
 
 
 ```{r,echo=FALSE}
-# table_three <- params$table
+table_three <- params$table
 # value <- get_nrc_sentiment(table_three)
-# sentimentscores <- round(colSums(prop.table((value[,1:8])))*100,digits = 1)
-# sentimentscores <- as.data.frame(sentimentscores)
-# qplot(sentimentscores, data = sentimentscores, geom = "bar", ylab = "# movies")
+    s_v <- get_sentences(table_three)
+    s_v_sentiment <- get_sentiment(s_v)
+    plot(
+      s_v_sentiment, 
+      type="l", 
+      main= "Messenger Timeline",
+      xlab = "Messenger Timeline", 
+      ylab= "Emotional Valence",
+      col = 'blue'
+    )
 ```
 

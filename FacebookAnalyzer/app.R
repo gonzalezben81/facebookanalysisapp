@@ -12,6 +12,8 @@ library(jsonlite)
 library(tm)
 library(syuzhet)
 library(DT)
+library(dplyr)
+library(shinycssloaders)
 options(shiny.maxRequestSize=30*1024^2) 
 # Define UI for application that processes Facebook Data
 ui <- fluidPage(
@@ -36,12 +38,12 @@ ui <- fluidPage(
       # Show a plot of the generated distribution
       mainPanel(
         tabsetPanel(
-         tabPanel(title = 'Raw Text Data:',textOutput("text")),
+         tabPanel(title = 'Raw Text Data:',textOutput("text")%>% withSpinner(color="#0dc5c1")),
          tabPanel(title = 'Emotional Percentages Table:',DT::DTOutput("json_text")),
          tabPanel(title = 'Sentence Table:',DT::DTOutput("sentence_table")),
-         tabPanel(title = 'Emotions Bar Plot:',plotOutput("plot_one")),
-         tabPanel(title = 'Pos vs Neg Bar Plot:',plotOutput("plot_two")),
-         tabPanel(title = 'Heartbeat Plot:',plotOutput("heartbeat"))
+         tabPanel(title = 'Emotions Bar Plot:',plotOutput("plot_one")%>% withSpinner(color="#0dc5c1")),
+         tabPanel(title = 'Pos vs Neg Bar Plot:',plotOutput("plot_two")%>% withSpinner(color="#0dc5c1")),
+         tabPanel(title = 'Heartbeat Plot:',plotOutput("heartbeat")%>% withSpinner(color="#0dc5c1"))
         )
       )
    )
