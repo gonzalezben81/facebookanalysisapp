@@ -38,12 +38,12 @@ ui <- fluidPage(
       # Show a plot of the generated distribution
       mainPanel(
         tabsetPanel(
-         tabPanel(title = 'Raw Text Data:',textOutput("text")%>% withSpinner(color="#0dc5c1")),
-         tabPanel(title = 'Emotional Percentages Table:',DT::DTOutput("json_text")),
-         tabPanel(title = 'Sentence Table:',DT::DTOutput("sentence_table")),
-         tabPanel(title = 'Emotions Bar Plot:',plotOutput("plot_one")%>% withSpinner(color="#0dc5c1")),
-         tabPanel(title = 'Pos vs Neg Bar Plot:',plotOutput("plot_two")%>% withSpinner(color="#0dc5c1")),
-         tabPanel(title = 'Heartbeat Plot:',plotOutput("heartbeat")%>% withSpinner(color="#0dc5c1"))
+         tabPanel(title = 'Raw Text Data:',textOutput("text")%>% withSpinner(color="#0dc5c1",type = 6)),
+         tabPanel(title = 'Emotional Percentages Table:',DT::DTOutput("json_text")%>% withSpinner(color="#0dc5c1",type = 6)),
+         tabPanel(title = 'Sentence Table:',DT::DTOutput("sentence_table")%>% withSpinner(color="#0dc5c1",type = 6)),
+         tabPanel(title = 'Emotions Bar Plot:',plotOutput("plot_one")%>% withSpinner(color="#0dc5c1",type = 6)),
+         tabPanel(title = 'Pos vs Neg Bar Plot:',plotOutput("plot_two")%>% withSpinner(color="#0dc5c1",type = 6)),
+         tabPanel(title = 'Heartbeat Plot:',plotOutput("heartbeat")%>% withSpinner(color="#0dc5c1",type = 6))
         )
       )
    )
@@ -215,6 +215,15 @@ server <- function(input, output, session) {
  ###Rmarkdown Report File
  output$downloadfacebookreport <- downloadHandler(
    filename = function() {
+     
+     withProgress(message = 'Generating Facebook Analysis Report',
+                  value = 0, {
+                    for (i in 1:10) {
+                      incProgress(1/10)
+                      Sys.sleep(0.25)
+                    }
+                  },env = parent.frame(n=1))
+     
      paste('Facebook Sentiment Analysis Report','pdf', sep = '.'
            #       switch(
            #   input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'

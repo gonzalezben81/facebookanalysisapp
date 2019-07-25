@@ -1,7 +1,7 @@
 ---
 title: "Facebook Report"
 author: "Ben Gonzalez"
-date: "July 1, 2019"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: pdf_document
 time: !r Sys.time()
 params:
@@ -63,7 +63,7 @@ table_two <- params$table
     ylimers <- c(0,ylim_max)
     # print(ylimers)
     barplot_one<- barplot(
-       sort(colSums(prop.table(value[, 1:8])),decreasing = TRUE),
+       colSums(prop.table(value[, 1:8])),
        cex.names = 0.7,
        las = 1,
        main = " Emotional Sentiment by Word",
@@ -73,7 +73,7 @@ table_two <- params$table
        # ,names.arg = round(x = sort(colSums(prop.table(value[, 1:8]))),digits = 2)
 
      )
-    text(barplot_one, 0,labels = round(colSums(prop.table(value[, 8:1])),digits = 3),cex=1,pos=3)
+    text(barplot_one, 0,labels = round(colSums(prop.table(value[, 1:8])),digits = 2),cex=1,pos=3)
 
 ```
 
@@ -121,9 +121,11 @@ value <- get_nrc_sentiment(table_three)
         # ,names.arg = round(x = sort(colSums(prop.table(value[, 9:10]))),digits = 2)
 
       )
-text(barplot_one, 0,labels = round(colSums(prop.table(value[, 9:10])),digits = 2),cex=1,pos=3)
+text(barplot_one, 0,labels = round(colSums(prop.table(value[, 10:9])),digits = 2),cex=1,pos=3)
     
 ```
+
+
 
 
 ```{r,echo=FALSE}
@@ -140,4 +142,5 @@ table_three <- params$table
       col = 'blue'
     )
 ```
+
 
