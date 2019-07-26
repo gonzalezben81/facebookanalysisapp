@@ -104,6 +104,20 @@ server <- function(input, output, session) {
 
   })
   
+  text_sender_two<- eventReactive(input$go,{
+    
+    
+    text<- jsonlite::fromJSON(txt = input$file1$datapath)
+    typeof(text)
+    
+    
+    text_participant<- text$participants$name[2]
+    
+    
+    return(text_participant)
+    
+  })
+  
   ###Update the participants name in the textInput field
   observe({updateTextInput(session, inputId = "name",
                   value = text_sender())})
@@ -246,7 +260,8 @@ server <- function(input, output, session) {
      file.rename(out, file)
 
      #     # Set up parameters to pass to Rmd document
-     params <- list(table = text_content() ,sentiment = text_content())
+     params <- list(table = text_content() ,sentiment = text_content(),set_author = text_sender(),
+                    set_author_two = text_sender_two())
      rmarkdown::render(tempReporters, output_file = file,
                        params = params,
                        envir = new.env(parent = globalenv())

@@ -1,12 +1,14 @@
 ---
 title: "Facebook Report"
-author: "Ben Gonzalez"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: pdf_document
 time: !r Sys.time()
 params:
+  set_author: "Someone"
+  set_author_two: "Someone"
   table: NA
   sentiment: NA
+author: "Conversation between `r params$set_author` & `r params$set_author_two`"
 ---
 
 ```{r setup, include=FALSE}
