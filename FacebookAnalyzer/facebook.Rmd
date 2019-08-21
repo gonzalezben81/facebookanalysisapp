@@ -8,6 +8,9 @@ params:
   set_author_two: "Someone"
   table: NA
   sentiment: NA
+  sentences: NA
+  emotions_one: NA
+  emotions_two: NA
 author: "Conversation between `r params$set_author` & `r params$set_author_two`"
 ---
 
@@ -16,6 +19,8 @@ library(syuzhet)
 library(tm)
 library(jsonlite)
 library(ggplot2)
+library(knitr)
+library(kableExtra)
 # knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(comment = NA)
 ```
@@ -144,5 +149,3 @@ table_three <- params$table
       col = 'blue'
     )
 ```
-
-
